@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CodeConnect India</title>
+<style>
+:root{--bg:#0a0e1a;--s:#121829;--s2:#1a2238;--line:#262f48;--txt:#eef1ff;--mut:#8f99b8;--blue:#3b82f6;--vio:#8b5cf6;--red:#f43f5e;--ok:#22c55e}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);padding:56px 0 64px}
+#net{position:fixed;inset:0;z-index:-1;opacity:1}
+button,input,textarea,select{font:inherit}
+.top{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:rgba(10,14,26,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:10}
+.logo{font-weight:800;font-size:19px;background:linear-gradient(90deg,var(--blue),var(--vio));-webkit-background-clip:text;color:transparent}
+.ib{background:none;border:none;color:var(--txt);font-size:22px;cursor:pointer;padding:6px 10px;border-radius:10px}
+.bot{position:fixed;bottom:0;left:0;right:0;height:60px;display:flex;background:rgba(10,14,26,.95);border-top:1px solid var(--line);z-index:10}
+.bot button{flex:1;background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer}
+.bot button.on{color:var(--txt)}
+main{max-width:540px;margin:auto;padding:12px}
+.box{background:var(--s);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.post{background:var(--s);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.ph{padding:12px 14px;display:flex;align-items:center;gap:10px}
+.av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--vio));display:grid;place-items:center;font-weight:700;color:#fff;flex:none;overflow:hidden;font-size:14px}
+.av img{width:100%;height:100%;object-fit:cover}
+.pimg{width:100%;max-height:520px;object-fit:cover;display:block;background:#000}
+.body{padding:10px 14px 14px}
+.mut{color:var(--mut);font-size:13px}
+.tag{display:inline-block;background:#2a1f4d;color:#c4b5fd;font-size:12px;padding:2px 8px;border-radius:999px;margin-bottom:6px}
+.chip{display:inline-block;background:var(--s2);border:1px solid var(--line);padding:3px 9px;border-radius:999px;font-size:12px;margin:2px}
+.cm{font-size:14px;margin-top:4px}
+.links{display:flex;gap:14px;margin-top:10px;font-size:13px;flex-wrap:wrap}
+.links button{background:none;border:none;color:var(--mut);cursor:pointer;padding:0;font-size:13px}
+.links button:hover{color:var(--txt)}
+input,textarea,select{width:100%;background:#0c1224;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
+.btn{background:linear-gradient(90deg,var(--blue),var(--vio));color:#fff;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;width:100%;font-weight:600;margin-top:4px}
+.btn2{background:var(--s2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.grid div{aspect-ratio:1;background:var(--s2);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:12px;padding:6px;text-align:center}
+.grid img{width:100%;height:100%;object-fit:cover}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:20}
+.ov.open{display:block}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:280px;max-width:86%;background:var(--s);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .25s;z-index:21;padding:16px;overflow:auto}
+.drawer.open{transform:none}
+.drawer button.item{display:block;width:100%;text-align:left;background:none;border:none;color:var(--txt);padding:11px 8px;border-radius:10px;cursor:pointer;font-size:15px}
+.drawer button.item:hover{background:var(--s2)}
+.ok{color:var(--ok);font-size:13px}
+.err{color:var(--red);font-size:13px}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.thm{border:none;border-radius:12px;padding:16px 8px;color:#fff;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6);cursor:pointer;min-height:64px;font-size:13px}
+</style></head>
+<body>
+<canvas id="net"></canvas>
+<input type="file" id="avfile" accept="image/*" style="display:none" onchange="avFile(this)">
+<div id="lo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30;align-items:center;justify-content:center;padding:16px"><div class="box" style="max-width:320px;width:100%;margin:0;text-align:center"><b>Are you sure you want to log out?</b><div style="display:flex;gap:8px;margin-top:14px"><button class="btn2" style="flex:1" onclick="askOut(false)">No</button><button class="btn" style="flex:1" onclick="askOut(true)">Yes</button></div></div></div>
+<header class="top"><span class="logo">CodeConnect India</span><button class="ib" aria-label="Menu" onclick="drawer(true)">&#8942;</button></header>
+<main id="app"><div class="empty">Loading...</div></main>
+<nav class="bot" id="bot"></nav>
+<div class="ov" id="ov" onclick="drawer(false)"></div>
+<aside class="drawer" id="dr">
+  <div class="mut" style="margin:6px 8px 10px">Menu</div>
+  <button class="item" onclick="menu('reg')">Register as coder / Edit profile</button>
+  <button class="item" onclick="menu('create')">Create post</button>
+  <button class="item" onclick="menu('team')">AI Team Builder</button>
+  <button class="item" onclick="menu('arena')">Skill Arena</button>
+  <button class="item" onclick="menu('opps')">Opportunities</button>
+  <button class="item" onclick="menu('rescue')">Project Rescue</button>
+  <button class="item" onclick="menu('msgs')">Messages</button>
+  <button class="item" onclick="menu('saved')">Saved posts</button>
+  <button class="item" onclick="menu('reel')">Upload coding reel</button>
+  <button class="item" onclick="menu('settings')">Settings &amp; Themes</button>
+  <button class="item" onclick="menu('privacy')">Privacy &amp; Security</button>
+  <button class="item" onclick="askLogout()">Log out</button>
+</aside>
+
+<script>
+const OPPS=[{t:"Freelance: landing page",k:"React",x:"Freelance"},{t:"Internship: backend team",k:"Node.js",x:"Internship"},{t:"Hackathon: AI for health",k:"Python",x:"Hackathon"},{t:"Open source: docs fix",k:"JavaScript",x:"Open source"},{t:"Job: mobile developer",k:"Flutter",x:"Job"}];
+let QS=[{q:"What does changing state in React cause?",o:["A re-render","Nothing","A full page reload"],a:0},{q:"Which SQL keyword enforces unique values?",o:["UNIQUE","SINGLE","ONLY"],a:0},{q:"How do you get a list's length in Python?",o:["size()","len()","count()"],a:1}];
+const S={db:null,uid:null,prof:{},posts:[],tab:"home",loaded:false,pimg:null,pdone:false,ex:"",q:"",av:0,quiz:{i:0,sc:0,done:0},team:"",opq:"All",timer:null,lb:[]};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const P=u=>S.prof[u]||{};
+const blockedBy=()=>P(S.uid).blocked||[];
+const nm=u=>u==="anon"?"Anonymous developer":(P(u).name||(u===S.uid?"You":"User"));
+const ini=n=>String(n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+const avat=u=>P(u).avatar?`<img src="${P(u).avatar}" alt="">`:esc(ini(nm(u)));
+const hl=t=>esc(t).replace(/(#\w+)/g,'<span onclick="tagSearch(\'$1\')" style="cursor:pointer;color:#60a5fa">$1</span>').replace(/(@\w+)/g,'<span onclick="userSearch(\'$1\')" style="cursor:pointer;color:#60a5fa">$1</span>');
+const chips=a=>(a||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join("");
+
+function menu(v){drawer(false);go(v)}
+function drawer(o){$("dr").classList.toggle("open",o);$("ov").classList.toggle("open",o)}
+function go(t){S.tab=t;render();window.scrollTo(0,0)}
+
+function render(){
+  const tabs=[["home","🏠"],["explore","🔍"],["msgs","💬"],["notif","🔔"],["profile","👤"]];
+  $("bot").innerHTML=tabs.map(([k,i])=>`<button class="${S.tab===k?'on':''}" onclick="go('${k}')">${i}</button>`).join("");
+  if(!S.uid){$("app").innerHTML=signin();return}
+  const v={home,explore,msgs,notif,profile,reg,create,reel,settings,saved:savedView,team,arena,opps,rescue,privacy}[S.tab]||home;
+  const ids=["mi","ptx","psk","rvt","rvu","rvs","rn","ru","rc","rs","rg","rb","idea","pimgurl","ravurl","rex"];
+  const keep={};ids.forEach(i=>{const el=$(i);if(el)keep[i]=el.value});
+  $("app").innerHTML=v();
+  ids.forEach(i=>{const el=$(i);if(el&&keep[i])el.value=keep[i]});
+}
+
+/* ---------- Sign in ---------- */
+function signin(){
+  return `<div class="box" style="margin-top:40px;text-align:center">
+    <div class="logo" style="font-size:26px">CodeConnect India</div>
+    <p class="mut">Find Coders. Showcase Skills. Build Together.</p>
+    <p>Sign in to use CodeConnect. Your account is used only to identify you. Your password is never shared with this page.</p>
+    <p class="mut">If you are not signed in, sign in from the page header or your browser, then reload this page.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px"><button class="btn" onclick="location.reload()">Log in</button><a class="btn2" href="https://claude.ai" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Sign up</a></div>
+    <p class="mut" style="font-size:12px;margin-top:14px">Privacy: phone numbers and email are never shown in CodeConnect. Only the fields you choose are visible.</p></div>`;
+}
+
+/* ---------- Home ---------- */
+function visible(p){return !blockedBy().includes(p.author)&&!(p.author!==S.uid&&P(p.author).privacy==="private"&&p.type!=="rescue")&&!(p.hidden)}
+function home(){
+  const feed=S.posts.filter(visible).filter(p=>(!S.fo||(P(S.uid).following||[]).includes(p.author)||p.author===S.uid)&&(!S.hq||(p.text||"").toLowerCase().includes(S.hq))).map(p=>{
+    const mine=p.author===S.uid, L=p.likes||[];
+    const cms=(p.cm||[]).map((c,i)=>`<div class="cm"><b>${esc(c.name)}</b> ${hl(c.t)}${c.by===S.uid?` <button class="btn2" style="padding:0 6px" onclick="delCm('${p.id}',${i})">delete</button>`:""}</div>`).join("");
+    const label=p.type==="req"?"Requirement":p.type==="rescue"?"Project Rescue":p.type==="help"?"Anonymous help":p.type==="reel"?"Coding reel":"Post";
+    return `<div class="post">
+      <div class="ph"><div class="av">${p.author==="anon"?"?":avat(p.author)}</div><div><b>${esc(nm(p.author))}</b><div class="mut">${new Date(p.created).toLocaleDateString("en-IN")}</div></div></div>
+      ${p.img?`<img class="pimg" src="${p.img}" alt="">`:""}
+      <div class="body">
+        <span class="tag">${label}</span>
+        <div>${hl(p.text)}</div>
+        ${p.videoUrl?`<div><a href="${esc(p.videoUrl)}" target="_blank" rel="noopener" style="color:#60a5fa">Watch video</a></div>`:""}
+        ${(p.skills||[]).length?`<div style="margin-top:6px">${chips(p.skills)}</div>`:""}
+        ${p.type==="req"||p.type==="rescue"||p.type==="help"?`<div class="mut">Matching coders: ${matchNames(p.skills||[])}</div>`:""}
+        <div class="links"><button onclick="like('${p.id}')">${L.includes(S.uid)?'♥':'♡'} ${L.length} likes</button>
+          <button onclick="sharePost('${p.id}')">Share</button> <button onclick="savePost('${p.id}')">${(P(S.uid).saved||[]).includes(p.id)?'Saved':'Save'}</button> ${mine?`<button onclick="delPost('${p.id}')">Delete</button>`:`<button onclick="report('${p.id}')">Report</button>`}
+          ${mine||p.author==="anon"?"":`<button onclick="block('${p.author}')">Block user</button>`}</div>
+        ${cms}
+        <div style="display:flex;gap:6px;margin-top:8px"><input id="c${p.id}" placeholder="Write a comment..." style="margin:0" onkeydown="if(event.key==='Enter')cmt('${p.id}')"><button class="btn2" onclick="cmt('${p.id}')">Send</button></div>
+      </div></div>`}).join("");
+  const tc={};S.posts.forEach(p=>((p.text||"").match(/#\w+/g)||[]).forEach(t=>{const k=t.toLowerCase();tc[k]=(tc[k]||0)+1}));
+  const trend=Object.entries(tc).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  return `<div class="box"><button class="btn" onclick="go('create')">+ Create a post</button><div style="margin-top:8px"><button class="btn2" onclick="S.fo=0;render()">All</button> <button class="btn2" onclick="S.fo=1;render()">Following</button></div>${S.hq?`<div class="mut" style="margin-top:8px">Showing ${esc(S.hq)} <button class="btn2" onclick="S.hq=null;render()">Clear</button></div>`:""}<div style="margin-top:8px">${trend.map(([t,c])=>`<span class="chip" style="cursor:pointer" onclick="tagSearch('${t}')">${esc(t)} (${c})</span>`).join("")}</div></div>`+
+    (feed||`<div class="empty">${S.loaded?"No posts yet. Be the first to post.":"Loading..."}</div>`);
+}
+async function like(id){const p=S.posts.find(x=>x.id===id),L=p.likes||[];const nl=L.includes(S.uid)?L.filter(x=>x!==S.uid):[...L,S.uid];await S.db.collection("posts").doc(id).update({likes:nl})}
+async function cmt(id){const el=$("c"+id),t=el.value.trim();if(!t)return;const p=S.posts.find(x=>x.id===id);await S.db.collection("posts").doc(id).update({cm:[...(p.cm||[]),{by:S.uid,name:nm(S.uid),t}]});el.value=""}
+async function delCm(id,i){const p=S.posts.find(x=>x.id===id);const c=(p.cm||[]).slice();if(c[i]&&c[i].by===S.uid){c.splice(i,1);await S.db.collection("posts").doc(id).update({cm:c})}}
+async function delPost(id){const p=S.posts.find(x=>x.id===id);if(p.author!==S.uid)return alert("You can delete only your own posts.");if(confirm("Delete this post?"))await S.db.collection("posts").doc(id).delete()}
+async function report(id){const p=S.posts.find(x=>x.id===id);const r=(p.reports||[]);if(r.includes(S.uid))return alert("You already reported this post.");await S.db.collection("posts").doc(id).update({reports:[...r,S.uid],hidden:r.length+1>=3});alert("Thanks. The post was reported for review.")}
+async function block(u){if(!confirm("Block this user? You will stop seeing their posts."))return;const b=blockedBy();await S.db.collection("profiles").doc(S.uid).update({blocked:[...b,u]})}
+
+/* ---------- Create post ---------- */
+function create(){
+  return `<div class="box"><b>Create a post</b>
+  <select id="pt"><option value="post">Post (achievement, update, tutorial)</option><option value="req">Requirement (@coderconnectindia)</option><option value="rescue">Project Rescue (need help)</option><option value="help">Anonymous help question</option></select>
+  <textarea id="ptx" rows="3" placeholder="Write something... #hashtag @mention"></textarea>
+  <input id="psk" placeholder="Skills needed, comma separated (for requirement and rescue)">
+  <input type="file" accept="image/*" onchange="pick(this)">
+  <input id="pimgurl" placeholder="Or paste a photo link (https://...)">
+  <div id="pmsg" class="err"></div>
+  <button class="btn" onclick="addPost()">Publish</button></div>`;
+}
+async function pick(el){const f=el.files[0],m=$("pmsg");if(!f)return;if(m){m.className="mut";m.textContent="Processing photo..."}try{S.pimg=await compress(f);if(m){m.className="ok";m.textContent="Photo ready: "+f.name}}catch(e){S.pimg=null;if(m){m.className="err";m.textContent="This file could not be read. Try a JPG or PNG."}}}
+function compress(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,640/Math.max(im.width,im.height));const c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.7))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(f)})}
+async function addPost(){
+  const type=$("pt").value,text=$("ptx").value.trim(),skills=$("psk").value.split(",").map(s=>s.trim()).filter(Boolean);
+  const iu=$("pimgurl")?$("pimgurl").value.trim():"";const img=S.pimg||(/^https:\/\//.test(iu)?iu:null);
+  if(!text&&!img)return $("pmsg").textContent="Please add text or a photo.";
+  if((type==="req"||type==="rescue")&&!skills.length)return $("pmsg").textContent="Add at least one skill.";
+  try{await S.db.collection("posts").add({author:type==="help"?"anon":S.uid,type,text,img,skills,likes:[],cm:[],reports:[],created:Date.now()});S.pimg=null;go("home")}
+  catch(e){$("pmsg").textContent="Could not save: "+(e.message||e)}
+}
+
+/* ---------- Explore ---------- */
+function explore(){
+  const list=Object.entries(S.prof).filter(([u,p])=>p.type==="coder"&&p.privacy!=="private"&&!blockedBy().includes(u)&&u!==S.uid)
+    .filter(([u,p])=>!S.av||p.avail).filter(([u,p])=>!S.ex||(p.username+" "+p.name+" "+(p.city||"")+" "+(p.skills||[]).join(" ")).toLowerCase().includes(S.ex.replace("@","").toLowerCase())).sort(sortCoders);
+  return `<div class="box"><input placeholder="Search by name, @username, city or skill" value="${esc(S.ex)}" oninput="S.ex=this.value;render();$('app').querySelector('input').focus()">
+    <label class="mut"><input type="checkbox" style="width:auto" ${S.av?"checked":""} onchange="S.av=this.checked?1:0;render()"> Available only</label> <select style="width:auto" onchange="S.so=this.value;render()"><option value="name">Sort: Name</option><option value="city">Sort: City</option><option value="exp">Sort: Experience</option><option value="new">Sort: Newest</option></select></div>
+  ${list.map(([u,p])=>`<div class="box"><div style="display:flex;gap:10px;align-items:center"><div class="av">${avat(u)}</div><div style="flex:1"><b>${esc(p.name)}</b> <span class="mut">@${esc(p.username||"")} - ${esc(p.city||"")}</span><div class="mut">${p.avail?"Available":"Busy"}${p.github?" - github.com/"+esc(p.github):""}</div></div>
+  <button class="btn2" onclick="toggleFollow('${u}')">${isFol(u)?"Following":"Follow"}</button> <button class="btn2" onclick="openChat('${u}')">Message</button> <button class="btn2" onclick="block('${u}')">Block</button></div>
+  <div style="margin-top:8px">${chips(p.skills)}</div><p class="mut" style="margin-bottom:0">${esc(p.bio||"")}</p></div>`).join("")||`<div class="empty">No public coders match. Register or change the filters.</div>`}`;
+}
+
+/* ---------- Notifications ---------- */
+function notif(){
+  const items=[];
+  S.posts.filter(p=>p.author===S.uid).forEach(p=>{
+    (p.likes||[]).filter(u=>u!==S.uid).forEach(u=>items.push(`${nm(u)} liked your post`));
+    (p.cm||[]).filter(c=>c.by!==S.uid).forEach(c=>items.push(`${c.name} commented: ${c.t}`));
+  });
+  followersOf(S.uid).forEach(u=>items.push(`${nm(u)} started following you`));
+  return `<div class="box"><b>Notifications</b></div>`+(items.map(t=>`<div class="box" style="color:var(--txt)">${esc(t)}</div>`).join("")||`<div class="empty">No notifications yet.</div>`);
+}
+
+/* ---------- Profile ---------- */
+function profile(){
+  const p=P(S.uid),mine=S.posts.filter(x=>x.author===S.uid);
+  return `<div class="box" style="display:flex;gap:14px;align-items:center">
+    <div style="position:relative"><div class="av" style="width:72px;height:72px;font-size:24px">${avat(S.uid)}</div><button onclick="toggleAv()" aria-label="Change profile photo" style="position:absolute;right:-4px;bottom:-4px;width:26px;height:26px;border-radius:50%;border:2px solid var(--bg);background:var(--blue);color:#fff;cursor:pointer;font-size:12px;padding:0">&#128247;</button></div>
+    <div style="flex:1"><b style="font-size:18px">${esc(p.name||"Set your name")}</b>
+    <div class="mut">@${esc(p.username||"set-username")} - ${p.type==="coder"?"Coder":"User"}${p.city?" - "+esc(p.city):""}</div>
+    <div class="mut">${followersOf(S.uid).length} followers - ${(p.following||[]).length} following</div>
+    <div class="mut">${mine.length} posts - Profile ${p.privacy==="private"?"private":"public"}</div></div></div>
+  <div class="box"><p style="margin:0">${esc(p.bio||"No bio yet.")}</p><div style="margin-top:8px">${chips(p.skills)}</div>
+  <p class="mut">${p.github?"GitHub: github.com/"+esc(p.github):""}</p>
+  <button class="btn2" style="width:100%" onclick="go('reg')">Edit profile</button><div style="display:flex;gap:8px;margin-top:8px"><button class="btn" onclick="go('create')">+ Create post</button><button class="btn2" onclick="go('reel')">+ Coding reel</button></div></div>
+  ${S.avs?avSheet():""}${followList()}<div class="grid">${mine.map(x=>`<div>${x.img?`<img src="${x.img}" alt="">`:esc((x.text||"").slice(0,60))}</div>`).join("")}</div>
+  ${mine.length?"":`<div class="empty">You have not posted yet.</div>`}`;
+}
+
+/* ---------- Register / edit profile ---------- */
+function reg(){
+  const p=P(S.uid);
+  return `<div class="box"><b>Register as coder / Edit profile</b>
+  <input id="rn" placeholder="Full name" value="${esc(p.name||"")}">
+  <input id="ru" placeholder="Username (3-20 letters, numbers or _)" value="${esc(p.username||"")}">
+  <select id="rt"><option value="coder" ${p.type!=="user"?"selected":""}>Coder / Developer</option><option value="user" ${p.type==="user"?"selected":""}>Normal user</option></select>
+  <input id="rc" placeholder="City" value="${esc(p.city||"")}">
+  <input id="rex" type="number" min="0" max="60" placeholder="Years of experience" value="${esc(p.exp||"")}">
+  <input id="rs" placeholder="Skills, comma separated (e.g. React, Python)" value="${esc((p.skills||[]).join(", "))}">
+  <input id="rg" placeholder="GitHub username" value="${esc(p.github||"")}">
+  <textarea id="rb" rows="3" placeholder="Bio">${esc(p.bio||"")}</textarea>
+  <label class="mut"><input type="checkbox" id="ra" style="width:auto" ${p.avail?"checked":""}> Available for work</label>
+  <select id="rp"><option value="public" ${p.privacy!=="private"?"selected":""}>Public profile (visible in Explore)</option><option value="private" ${p.privacy==="private"?"selected":""}>Private profile (hidden from Explore)</option></select>
+  <input type="file" accept="image/*" onchange="pickAv(this)">
+  <input id="ravurl" placeholder="Or paste a profile photo link (https://...)">
+  <p class="mut">Phone and email are never shown on CodeConnect.</p>
+  <div id="rmsg" class="err"></div>
+  <button class="btn" onclick="saveProfile()">Save profile</button></div>`;
+}
+let avPick=null;
+async function pickAv(el){const f=el.files[0];if(f)avPick=await compress(f)}
+async function saveProfile(){
+  const name=$("rn").value.trim();if(!name)return $("rmsg").textContent="Please enter your name.";
+  const username=$("ru").value.trim().toLowerCase();
+  if(!/^[a-z0-9_]{3,20}$/.test(username))return $("rmsg").textContent="Username: 3-20 letters, numbers or _ only.";
+  if(Object.entries(S.prof).some(([u,p])=>u!==S.uid&&p.username===username))return $("rmsg").textContent="This username is taken. Choose another.";
+  const old=P(S.uid);
+  const data={username,name,type:$("rt").value,city:$("rc").value.trim(),exp:+$("rex").value||0,skills:$("rs").value.split(",").map(s=>s.trim()).filter(Boolean),github:$("rg").value.trim(),bio:$("rb").value.trim(),avail:$("ra").checked,privacy:$("rp").value,avatar:avPick||(/^https:\/\//.test($("ravurl").value.trim())?$("ravurl").value.trim():null)||old.avatar||null,blocked:old.blocked||[],updated:Date.now()};
+  try{await S.db.collection("profiles").doc(S.uid).set(data);avPick=null;$("rmsg").className="ok";$("rmsg").textContent="Profile saved.";setTimeout(()=>go("profile"),500)}
+  catch(e){$("rmsg").className="err";$("rmsg").textContent="Could not save: "+(e.message||e)}
+}
+
+/* ---------- Privacy & security ---------- */
+function privacy(){
+  const b=blockedBy();
+  return `<div class="box"><b>Privacy &amp; Security</b>
+  <p class="mut">Phone and email are never shown. Only you can edit or delete your own posts, comments and profile. Reported posts are hidden after 3 reports. Your private profile is hidden from Explore.</p>
+  <button class="btn2" onclick="go('reg')">Change profile visibility</button></div>
+  <div class="box"><b>Blocked users (${b.length})</b>
+  ${b.map(u=>`<div class="row" style="display:flex;justify-content:space-between;margin-top:8px"><span>${esc(nm(u))}</span><button class="btn2" onclick="unblock('${u}')">Unblock</button></div>`).join("")||`<p class="mut">No blocked users.</p>`}</div>
+  <div class="box"><b>Known limits</b>
+  <ul class="mut" style="padding-left:18px;margin:8px 0 0">
+    <li>Audio and video calls are not available yet.</li>
+    <li>Map and distance search are not available yet.</li>
+    <li>AI skill assessment and GitHub verification are not built yet. Ratings shown are sample values, not verified.</li>
+    <li>The Team Builder uses keyword rules, not a trained AI model.</li>
+    <li>Skill Arena scores reset when the page reloads.</li>
+    <li>Messages are not end-to-end encrypted. Do not share passwords or sensitive data.</li>
+    <li>Ownership is checked inside the app. Database rules do not yet block other signed-in users from editing data.</li>
+    <li>The app works only when you are signed in to your account.</li>
+  </ul></div>
+  <div class="box"><b>Your data</b><p class="mut">Delete your profile and all your posts from CodeConnect.</p>
+  <button class="btn2" style="color:#f87171" onclick="wipe()">Delete my data</button></div>`;
+}
+async function unblock(u){await S.db.collection("profiles").doc(S.uid).update({blocked:blockedBy().filter(x=>x!==u)})}
+async function wipe(){if(!confirm("Delete your profile and all your posts? This cannot be undone."))return;
+  for(const p of S.posts.filter(x=>x.author===S.uid))await S.db.collection("posts").doc(p.id).delete();
+  await S.db.collection("profiles").doc(S.uid).delete();alert("Your data was deleted.");go("home")}
+
+/* ---------- Team Builder (rule-based) ---------- */
+function team(){
+  return `<div class="box"><b>AI Team Builder</b> <span class="mut">(rule-based, not a real AI model)</span>
+  <textarea id="idea" rows="3" placeholder="Describe your project, e.g. 'mobile app for grocery delivery with payments and admin dashboard'"></textarea>
+  <button class="btn" onclick="buildTeam()">Suggest team</button></div><div id="tout">${S.team||""}</div>`;
+}
+function buildTeam(){
+  const x=$("idea").value.toLowerCase();
+  const roles=[["Frontend Developer",["React","JavaScript","TypeScript"],/web|dashboard|site|ui|frontend/],["Mobile Developer",["Flutter","Dart"],/app|mobile|android|ios/],["Backend Developer",["Node.js","Python","Java","Django"],/api|backend|server|payment|database|admin/],["ML Engineer",["Python","Machine Learning"],/\bai\b|\bml\b|model|predict|vision/],["UI Designer",["UI Design"],/design|ux|look/]];
+  const picked=roles.filter(r=>r[2].test(x));
+  const coders=Object.entries(S.prof).filter(([u,p])=>p.type==="coder"&&p.privacy!=="private");
+  S.team=picked.length?picked.map(r=>{const m=coders.filter(([u,p])=>(p.skills||[]).some(s=>r[1].includes(s))).slice(0,2);
+    return `<div class="box"><b>${r[0]}</b><div style="margin-top:6px">${chips(r[1].slice(0,2))}</div><div class="mut">${m.length?m.map(([u,p])=>esc(p.name)).join(", "):"No registered coder matches yet"}</div></div>`}).join("")
+    :`<div class="box mut">No roles detected. Add words like web, app, API, AI or design.</div>`;
+  $("tout").innerHTML=S.team;
+}
+
+/* ---------- Skill Arena ---------- */
+function arena(){
+  const q=S.quiz;
+  const body=q.done?`<b>Quiz finished: ${q.sc}/${QS.length}</b><div style="margin-top:8px"><button class="btn2" onclick="S.quiz={i:0,sc:0,done:0};render()">Try again</button></div>`
+  :`<div class="mut">Question ${q.i+1}/${QS.length} (weekly challenge)</div><p><b>${QS[q.i].q}</b></p>${QS[q.i].o.map((o,j)=>`<button class="btn2" style="display:block;width:100%;text-align:left;margin:6px 0" onclick="ans(${j})">${o}</button>`).join("")}`;
+  return `<div class="box"><b>Challenge: ${esc(S.ch)}</b><div style="margin-top:8px">${Object.keys(CHS).map(k=>`<button class="btn2" style="margin:2px" onclick="setCh('${k}')">${esc(k)}</button>`).join("")}</div><p class="mut">A new set is picked every week. You can also choose any set.</p></div><div class="box">${body}</div><div class="box"><b>Leaderboard</b><p class="mut">Best scores of all coders, saved to profiles.</p>${S.lb.slice().sort((a,b)=>b.s-a.s).map((l,i)=>`<div style="display:flex;justify-content:space-between;margin-top:6px"><span>${i+1}. ${esc(l.n)}</span><b>${l.s}</b></div>`).join("")||"<p class='mut'>No scores yet.</p>"}</div>`;
+}
+function ans(j){const q=S.quiz;if(j===QS[q.i].a)q.sc++;q.i++;if(q.i>=QS.length){q.done=1;if(S.uid&&S.db)S.db.collection("profiles").doc(S.uid).update({arena:Math.max(P(S.uid).arena||0,q.sc)}).catch(()=>{});S.lb=S.lb.filter(x=>x.n!==nm(S.uid));S.lb.push({n:nm(S.uid),s:q.sc})}render()}
+
+/* ---------- Opportunities ---------- */
+function opps(){
+  const ks=["All",...new Set(OPPS.map(o=>o.k))];
+  return `<div class="box"><b>Opportunity Radar</b><div style="margin-top:8px">${ks.map(k=>`<button class="btn2" style="margin:2px" onclick="S.opq='${k}';render()">${k}</button>`).join("")}</div></div>`+
+  OPPS.filter(o=>S.opq==="All"||o.k===S.opq).map(o=>`<div class="box"><span class="tag">${o.x}</span><div><b>${o.t}</b></div><div class="mut">Skill: ${o.k}</div></div>`).join("");
+}
+
+/* ---------- Project Rescue ---------- */
+function rescue(){
+  const rs=S.posts.filter(p=>p.type==="rescue"&&visible(p));
+  return `<div class="box"><b>Project Rescue</b><p class="mut">Post a problem from the + Create post button (choose Project Rescue). Posts with matching skills appear below.</p>
+  <button class="btn" onclick="go('create')">Post a problem</button></div>`+rs.map(p=>`<div class="box"><span class="tag">Rescue</span><div>${hl(p.text)}</div><div style="margin-top:6px">${chips(p.skills)}</div><div class="mut">By ${esc(nm(p.author))}</div></div>`).join("");
+}
+
+/* ---------- Themes, background, reels, settings ---------- */
+const THEMES=[["Midnight Blue","#0a0e1a","#121829","#262f48","#eef1ff","#3b82f6","#8b5cf6"],["Aurora Green","#06130f","#0c1f19","#1d3b31","#e8fff6","#10b981","#22d3ee"],["Sunset Blaze","#1a0a0f","#2a1219","#4a1f2c","#fff1f2","#f97316","#ec4899"],["Ocean Deep","#03141f","#082436","#123a52","#e6f7ff","#0ea5e9","#14b8a6"],["Forest Night","#07150d","#0f2216","#1f3b28","#ecfdf3","#22c55e","#84cc16"],["Neon Tokyo","#0b0716","#171029","#2b1d4d","#f5f3ff","#f0abfc","#22d3ee"],["Cyber Pink","#14060f","#220b19","#3f1530","#fff0f7","#ec4899","#a855f7"],["Monochrome","#0b0b0b","#161616","#2a2a2a","#f5f5f5","#e5e5e5","#9ca3af"],["Desert Dusk","#1c140d","#2a1f14","#47351f","#fdf6ec","#d97706","#b45309"],["Arctic Ice","#f0f7ff","#ffffff","#d6e6f5","#0b1f33","#2563eb","#38bdf8"],["Ember Glow","#160a05","#241108","#4a2412","#fff4ed","#ea580c","#facc15"],["Violet Storm","#0e0819","#1a1030","#332257","#f3efff","#7c3aed","#c026d3"],["Mint Fresh","#f0fdf8","#ffffff","#cdeee0","#0d2b20","#10b981","#06b6d4"],["Royal Gold","#0d0b05","#1a160a","#3d3212","#fff9e6","#eab308","#f59e0b"],["Rose Quartz","#fff5f7","#ffffff","#f7d4de","#3b0d1d","#e11d48","#fb7185"],["Matrix","#000a02","#04140a","#0b2e18","#b7ffd1","#22c55e","#16a34a"],["Synthwave","#13021f","#20063a","#3b0d66","#ffe9ff","#ff2e97","#00e5ff"],["Lavender Mist","#f5f3ff","#ffffff","#ddd6fe","#2e1065","#7c3aed","#a78bfa"],["Crimson Night","#12040a","#1f0710","#3d0f22","#ffe4ec","#dc2626","#f97316"],["Teal Lagoon","#031a1a","#072a2a","#0f4a4a","#e0fffb","#14b8a6","#2dd4bf"],["Cotton Candy","#fff0fb","#ffffff","#f9cfee","#3d1a4a","#ec4899","#60a5fa"],["Slate Pro","#0f1114","#171b21","#2c333d","#e5e7eb","#64748b","#94a3b8"],["Espresso","#140d09","#22170f","#3f2a1c","#f5e9dd","#a16207","#b45309"],["Emerald City","#021a10","#062b1a","#0f4d30","#d1fae5","#059669","#34d399"],["Galaxy","#05030f","#0d0a22","#1f1845","#e0e7ff","#6366f1","#ec4899"],["Sakura","#fff7fa","#ffffff","#fbd5e3","#4a1d2e","#f472b6","#fb7185"],["Retro Amber","#120a00","#1f1404","#3d2a0a","#ffe8b3","#f59e0b","#ea580c"],["Deep Sea","#010a14","#04172a","#0a2d4d","#d7ecff","#1d4ed8","#0891b2"],["Volcano","#0f0303","#1f0a0a","#3f1414","#ffe6e0","#ef4444","#f59e0b"],["Glacier","#eef6fb","#ffffff","#cfe3f0","#0c2d48","#0284c7","#7dd3fc"],["Cherry Cola","#120306","#200810","#3d1020","#ffe9ef","#be123c","#7f1d1d"],["Neon Lime","#0a0d05","#141c09","#2c3d12","#f7ffe0","#84cc16","#a3e635"],["Pastel Dream","#fdf6ff","#ffffff","#e9d5ff","#3b1d5c","#a78bfa","#f9a8d4"],["Obsidian","#050505","#0f0f10","#222226","#f4f4f5","#a1a1aa","#e4e4e7"],["Peach Sorbet","#fff6ef","#ffffff","#fed7b8","#4a2510","#fb923c","#f472b6"],["Indigo Night","#070a24","#0e1440","#1f2a6b","#e0e7ff","#4f46e5","#818cf8"],["Coral Reef","#071a1f","#0b2a30","#15505a","#e0fbff","#fb7185","#2dd4bf"],["Solar Flare","#120b00","#201500","#4a3300","#fff8e1","#facc15","#f97316"],["Lunar Silver","#0b0d12","#141821","#2a3140","#e2e8f0","#cbd5e1","#94a3b8"],["Jungle","#051207","#0b1f0d","#173d1b","#ecfccb","#65a30d","#15803d"],["Bubblegum","#fff0f6","#ffffff","#ffd1e6","#5b0e2d","#ff5fa2","#7dd3fc"],["Steel Blue","#0c1218","#151d27","#263648","#e6eef7","#4682b4","#7aa7d6"],["Plum Velvet","#120613","#1e0d20","#3a1a3f","#f5e6ff","#a21caf","#7e22ce"],["Honey Gold","#fffbeb","#ffffff","#fde68a","#422006","#d97706","#f59e0b"],["Sky Light","#f0f9ff","#ffffff","#bae6fd","#0c4a6e","#0ea5e9","#38bdf8"],["Arcade","#0a0a14","#14142a","#2a2a55","#f0f0ff","#facc15","#22d3ee"],["Mocha","#1a120e","#261b15","#43312a","#f7ebe3","#c08457","#a0522d"],["Northern Lights","#03101a","#071f2e","#0f3a4f","#d3f9f0","#22d3ee","#a855f7"],["Carbon Fiber","#0a0a0c","#131316","#222228","#d4d4d8","#737373","#a3a3a3"],["Tropical Sunset","#1f0b1a","#2b1028","#4d1d46","#fff1e6","#fb923c","#e879f9"]];
+S.th=(()=>{try{return +(localStorage.getItem("cc_theme")||0)||0}catch(e){return 0}})();
+function applyTheme(){const t=THEMES[S.th]||THEMES[0],r=document.documentElement.style;r.setProperty("--bg",t[1]);r.setProperty("--s",t[2]);r.setProperty("--s2",t[2]);r.setProperty("--line",t[3]);r.setProperty("--txt",t[4]);r.setProperty("--mut",`color-mix(in srgb, ${t[4]} 62%, transparent)`);r.setProperty("--blue",t[5]);r.setProperty("--vio",t[6])}
+function setTheme(i){S.th=i;try{localStorage.setItem("cc_theme",String(i))}catch(e){}if(S.uid&&S.db&&P(S.uid).name)S.db.collection("profiles").doc(S.uid).update({theme:i}).catch(()=>{});applyTheme();render()}
+function aurora(){const c=$("net"),x=c.getContext("2d"),W=c.width,H=c.height,t=THEMES[S.th]||THEMES[0],n=Date.now()/5000,M=Math.max(W,H);
+const blob=(cx,cy,r,col)=>{const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,col+"66");g.addColorStop(1,col+"00");x.fillStyle=g;x.fillRect(0,0,W,H)};
+blob(W*(.3+.15*Math.sin(n)),H*(.3+.1*Math.cos(n*.7)),M*.55,t[5]);blob(W*(.7+.15*Math.cos(n*.8)),H*(.6+.12*Math.sin(n)),M*.5,t[6]);blob(W*.5,H*(.1+.08*Math.sin(n*1.3)),M*.4,t[5])}
+function settings(){return `<div class="box"><b>Settings</b></div><div class="box"><b>Themes (${THEMES.length})</b><p class="mut">Your choice is saved on this device.</p><div class="grid2">${THEMES.map((t,i)=>`<button class="thm" onclick="setTheme(${i})" style="background:linear-gradient(135deg,${t[1]},${t[5]},${t[6]})">${t[0]}${S.th===i?" ✓":""}</button>`).join("")}</div></div>`}
+function reel(){return `<div class="box"><b>Upload a coding reel</b><p class="mut">Short coding video for beginners. Paste an https link to your video (YouTube, Google Drive, etc.). Direct video file upload is not supported yet.</p>
+  <input id="rvt" placeholder="Title, e.g. Learn arrays in 60 seconds"><input id="rvu" placeholder="Video link (https://...)"><input id="rvs" placeholder="Skills and level, comma separated, e.g. Python, Beginner"><button class="btn" onclick="addReel()">Publish reel</button><div id="rvm" class="err"></div></div>`}
+async function addReel(){const u=$("rvu").value.trim(),t=$("rvt").value.trim(),sk=$("rvs").value.split(",").map(s=>s.trim()).filter(Boolean);
+  if(!/^https:\/\//.test(u))return $("rvm").textContent="Enter a valid https link.";if(!t)return $("rvm").textContent="Add a title.";
+  try{await S.db.collection("posts").add({author:S.uid,type:"reel",text:t,videoUrl:u,img:null,skills:sk,likes:[],cm:[],reports:[],created:Date.now()});go("home")}catch(e){$("rvm").textContent="Could not save: "+(e.message||e)}}
+
+async function sharePost(id){const p=S.posts.find(x=>x.id===id);const txt=(p.text||"").slice(0,120)+" - CodeConnect India";if(navigator.share){try{await navigator.share({title:"CodeConnect India",text:txt})}catch(e){}}else{try{await navigator.clipboard.writeText(txt);alert("Post text copied.")}catch(e){alert(txt)}}}
+async function savePost(id){const s=P(S.uid).saved||[];const ns=s.includes(id)?s.filter(x=>x!==id):[...s,id];try{await S.db.collection("profiles").doc(S.uid).update({saved:ns})}catch(e){alert("Register your profile first to save posts.")}}
+function savedView(){const ids=P(S.uid).saved||[];const list=S.posts.filter(p=>ids.includes(p.id));return `<div class="box"><b>Saved posts (${list.length})</b></div>`+(list.map(p=>`<div class="box"><span class="tag">${esc(p.type)}</span><div>${hl(p.text)}</div><div class="mut">By ${esc(nm(p.author))}</div></div>`).join("")||`<div class="empty">No saved posts. Tap Save on any post.</div>`)}
+function tagSearch(t){S.hq=t.toLowerCase();S.tab="home";render();window.scrollTo(0,0)}
+function userSearch(u){S.ex=u;S.tab="explore";render()}
+const sortCoders=(a,b)=>S.so==="exp"?(b[1].exp||0)-(a[1].exp||0):S.so==="city"?(a[1].city||"").localeCompare(b[1].city||""):S.so==="new"?(b[1].updated||0)-(a[1].updated||0):(a[1].name||"").localeCompare(b[1].name||"");
+function matchNames(sk){return Object.entries(S.prof).filter(([u,p])=>p.type==="coder"&&p.privacy!=="private"&&(p.skills||[]).some(s=>sk.includes(s))).map(([u,p])=>esc(p.name)).slice(0,5).join(", ")||"None yet"}
+
+/* ---------- Profile photo ---------- */
+const CODE_SYM=["</>","{ }","[ ]","( )","=>","#","$","&&","||","//","*","λ","π","Σ","0x","01","fn","::","->","<>","@","%","^","~","?",";","+=","!=","==","...","git","npm","py","js","ts","sql","api","ai","bug","main","run","db","<a>","div","CSS","JSON","HTML","C++","Go","Rust","PHP"];
+const HUM_AV=Array.from({length:12},(_,i)=>{const skins=["#f1c9a5","#c68642","#8d5524","#ffdbac"],hairs=["#1f1f1f","#3b2a1a","#6b3e1e","#2b1d14"],shirts=["#3b82f6","#8b5cf6","#22c55e","#f97316","#ec4899","#14b8a6"],accs=["#fbbf24","#60a5fa","#f472b6","#34d399"];const girl=i%2===1,sk=skins[i%4],hr=hairs[(i*3)%4],sh=shirts[i%6],ac=accs[i%4],h1=(i*45)%360,h2=(h1+50)%360;const hair=girl?`<ellipse cx="50" cy="46" rx="26" ry="27" fill="${hr}"/>`:"";const top=girl?`<path d="M26 46 Q28 22 50 22 Q72 22 74 46 Q66 34 50 34 Q36 34 26 46 Z" fill="${hr}"/>`:`<path d="M30 40 Q30 21 50 21 Q70 21 70 40 Q64 30 50 30 Q38 30 30 40 Z" fill="${hr}"/>`;const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h1},70%,30%)"/><stop offset="1" stop-color="hsl(${h2},80%,18%)"/></linearGradient></defs><rect width="100" height="100" fill="url(#g${i})"/><path d="M18 100 Q18 70 50 68 Q82 70 82 100 Z" fill="${sh}"/><rect x="44" y="56" width="12" height="14" fill="${sk}"/>${hair}<circle cx="50" cy="42" r="19" fill="${sk}"/>${top}<circle cx="43" cy="44" r="2.2" fill="#222"/><circle cx="57" cy="44" r="2.2" fill="#222"/><path d="M44 52 Q50 56 56 52" stroke="#222" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M28 42 Q28 20 50 20 Q72 20 72 42" stroke="${ac}" stroke-width="4" fill="none"/><rect x="23" y="40" width="8" height="14" rx="3" fill="${ac}"/><rect x="69" y="40" width="8" height="14" rx="3" fill="${ac}"/><rect x="28" y="74" width="44" height="18" rx="2" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/><rect x="20" y="91" width="60" height="5" rx="2" fill="#cbd5e1"/></svg>`;return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
+const CODE_AV0=CODE_SYM.map((s,i)=>{const h=(i*37)%360,h2=(h+40)%360,t=String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${h},80%,55%)"/><stop offset="1" stop-color="hsl(${h2},85%,35%)"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/><text x="50" y="50" font-family="monospace" font-size="${t.length>4?13:22}" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#fff">${t}</text></svg>`;return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
+const CODE_AV=HUM_AV.concat(CODE_AV0);
+function avLink(){const u=$("avurl").value.trim();if(!/^https:\/\//.test(u))return alert("Enter a valid https photo link.");saveAvatar(u)}
+function toggleAv(){S.avs=!S.avs;render()}
+function avFile(el){const f=el.files[0];el.value="";if(!f)return;compress(f).then(d=>saveAvatar(d)).catch(()=>alert("This file could not be read. Try a JPG or PNG."))}
+async function saveAvI(i){await saveAvatar(CODE_AV[i])}
+async function saveAvatar(d){if(!P(S.uid).name)return alert("Register your profile first, then add a photo.");try{await S.db.collection("profiles").doc(S.uid).update({avatar:d});S.avs=false;render()}catch(e){alert("Could not save photo: "+(e.message||e))}}
+function avSheet(){return `<div class="box"><b>Choose profile photo</b><div style="display:flex;gap:8px;margin:10px 0"><label class="btn" style="position:relative;overflow:hidden;text-align:center;margin:0;flex:1">Gallery<input type="file" accept="image/*" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer" onchange="avFile(this)"></label><button class="btn2" onclick="S.avai=!S.avai;render()">Avatars</button></div><div style="display:flex;gap:6px;margin-bottom:10px"><input id="avurl" placeholder="Or paste a photo link (https://...)" style="margin:0"><button class="btn2" onclick="avLink()">Use</button></div>${S.avai?`<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">${CODE_AV.map((s,i)=>`<img src="${s}" alt="" style="width:100%;aspect-ratio:1;border-radius:50%;cursor:pointer" onclick="saveAvI(${i})">`).join("")}</div>`:""}</div>`}
+
+const CHS={"React / JavaScript":[{q:"What does changing state in React cause?",o:["A re-render","Nothing","A full page reload"],a:0},{q:"Which keyword declares a constant in JavaScript?",o:["const","var","let"],a:0},{q:"What does === check?",o:["Value only","Value and type","Type only"],a:1}],"Python":[{q:"How do you get a list length in Python?",o:["size()","len()","count()"],a:1},{q:"Which keyword defines a function in Python?",o:["func","def","function"],a:1},{q:"What is the output of 2 ** 3?",o:["6","8","9"],a:1}],"SQL":[{q:"Which keyword removes duplicate rows?",o:["UNIQUE","DISTINCT","SINGLE"],a:1},{q:"Which clause filters rows?",o:["WHERE","HAVING_ONLY","FILTER"],a:0},{q:"Which command adds new rows?",o:["INSERT","ADD","PUT"],a:0}]};
+S.ch=Object.keys(CHS)[Math.floor(Date.now()/604800000)%3];QS=CHS[S.ch];
+function setCh(k){S.ch=k;QS=CHS[k];S.quiz={i:0,sc:0,done:0};render()}
+
+/* ---------- Log out ---------- */
+function askLogout(){drawer(false);$("lo").style.display="flex"}
+function askOut(y){$("lo").style.display="none";if(y)signOut()}
+function signOut(){drawer(false);S.uid=null;S.prof={};S.posts=[];S.chats=[];S.chatWith=null;render()}
+
+/* ---------- Follow ---------- */
+const isFol=u=>(P(S.uid).following||[]).includes(u);
+const followersOf=u=>Object.entries(S.prof).filter(([k,p])=>(p.following||[]).includes(u)).map(([k])=>k);
+async function toggleFollow(u){
+  if(!P(S.uid).name)return alert("Register your profile first to follow coders.");
+  const f=P(S.uid).following||[];
+  const nf=f.includes(u)?f.filter(x=>x!==u):[...f,u];
+  try{await S.db.collection("profiles").doc(S.uid).update({following:nf})}catch(e){alert("Could not update: "+(e.message||e))}
+}
+function followList(){
+  const f=P(S.uid).following||[],fr=followersOf(S.uid);
+  return `<div class="box"><b>Following (${f.length})</b>${f.map(u=>`<div style="display:flex;justify-content:space-between;margin-top:8px"><span>${esc(nm(u))} <span class="mut">@${esc(P(u).username||"")}</span></span><button class="btn2" onclick="toggleFollow('${u}')">Unfollow</button></div>`).join("")||`<p class="mut">You follow no one yet.</p>`}</div>
+  <div class="box"><b>Followers (${fr.length})</b>${fr.map(u=>`<div style="margin-top:8px">${esc(nm(u))} <span class="mut">@${esc(P(u).username||"")}</span></div>`).join("")||`<p class="mut">No followers yet.</p>`}</div>`;
+}
+
+/* ---------- Messages (one-to-one) ---------- */
+const cid=o=>[S.uid,o].sort().join("_");
+function openChat(o){S.chatWith=o;go("msgs")}
+function msgs(){
+  if(S.chatWith)return chat(S.chatWith);
+  const list=(S.chats||[]).map(c=>{const o=c.participants.find(x=>x!==S.uid)||"";const last=(c.msgs||[]).slice(-1)[0];return `<div class="box" style="cursor:pointer" onclick="openChat('${o}')"><b>${esc(nm(o))}</b><div class="mut">${esc(last?last.t:"")}</div></div>`}).join("");
+  return `<div class="box"><b>Messages</b> <span class="mut">One-to-one chat</span></div>`+(list||`<div class="empty">No conversations yet. Open Explore and tap Message.</div>`);
+}
+function chat(o){
+  const c=(S.chats||[]).find(x=>x.id===cid(o))||{msgs:[]};
+  const blocked=blockedBy().includes(o)||(P(o).blocked||[]).includes(S.uid);
+  return `<div class="box"><button class="btn2" onclick="S.chatWith=null;render()">Back</button> <b>${esc(nm(o))}</b></div>
+  <div class="box" style="min-height:200px">${(c.msgs||[]).map(m=>`<div class="cm" style="${m.f===S.uid?'text-align:right;color:#c4b5fd':''}">${esc(m.t)}</div>`).join("")||'<div class="mut">Say hello.</div>'}</div>
+  ${blocked?`<div class="box mut">You cannot message this user.</div>`:`<div style="display:flex;gap:6px"><input id="mi" placeholder="Type a message" style="margin:0" onkeydown="if(event.key==='Enter')sendMsg('${o}')"><button class="btn2" onclick="sendMsg('${o}')">Send</button></div>`}
+  <p class="mut" style="font-size:12px">Messages are stored in the shared database. Do not share passwords or sensitive data here.</p>`;
+}
+async function sendMsg(o){
+  const el=$("mi"),t=el.value.trim();if(!t)return;
+  if(blockedBy().includes(o)||(P(o).blocked||[]).includes(S.uid))return alert("You cannot message this user.");
+  const id=cid(o),c=(S.chats||[]).find(x=>x.id===id);
+  const m=[...((c&&c.msgs)||[]),{f:S.uid,t,at:Date.now()}].slice(-200);
+  try{await S.db.collection("chats").doc(id).set({participants:[S.uid,o].sort(),msgs:m,updated:Date.now()});el.value=""}
+  catch(e){alert("Message not sent: "+(e.message||e))}
+}
+
+/* ---------- Boot ---------- */
+(async()=>{
+  const c=window.claude;
+  const db=c?await c.use("db"):null;
+  const user=c?await c.use("user"):null;
+  S.uid=user?await user.id():null;
+  S.db=db;
+  if(!db||!S.uid){S.loaded=true;render();return}
+  S.timer=setTimeout(()=>{if(!S.loaded)$("app").insertAdjacentHTML("afterbegin",'<div class="box mut">Data is not reachable yet. It will retry automatically.</div>')},10000);
+  db.collection("profiles").onSnapshot(s=>{S.prof={};s.docs.forEach(d=>{if(d.exists)S.prof[d.id]=d.data()});S.loaded=true;clearTimeout(S.timer);S.lb=Object.entries(S.prof).filter(([u,p])=>p.arena!==undefined).map(([u,p])=>({n:p.name||"Coder",s:p.arena}));if(!S.thSynced&&P(S.uid).theme!==undefined){S.thSynced=1;S.th=P(S.uid).theme;applyTheme()}render()},e=>console.error(e));
+  db.collection("posts").orderBy("created","desc").limit(100).onSnapshot(s=>{S.posts=s.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()}));S.loaded=true;render()},e=>console.error(e));
+  db.collection("chats").where("participants","array-contains",S.uid).onSnapshot(s=>{S.chats=s.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.updated||0)-(a.updated||0));render()},e=>console.error(e));
+  render();
+})();
+
+/* ---------- Networking background ---------- */
+(function(){const c=$("net"),x=c.getContext("2d");let Q=[],W,H;
+function rs(){W=c.width=innerWidth;H=c.height=innerHeight;Q=Array.from({length:Math.min(60,Math.floor(W*H/20000))},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35}))}
+function f(){x.clearRect(0,0,W,H);aurora();Q.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1});
+for(let i=0;i<Q.length;i++)for(let j=i+1;j<Q.length;j++){const a=Q[i],b=Q[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<130){x.strokeStyle=`rgba(59,130,246,${.25*(1-d/130)})`;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}}
+Q.forEach(p=>{x.fillStyle="rgba(139,92,246,.8)";x.beginPath();x.arc(p.x,p.y,1.8,0,7);x.fill()});requestAnimationFrame(f)}
+addEventListener("resize",rs);rs();f()})();
+
+applyTheme();render();
+</script>
+</body></html>
